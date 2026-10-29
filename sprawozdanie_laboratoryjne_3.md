@@ -67,11 +67,20 @@ def rollout(model, s, start, H, okno):
 ## 3. Wyniki
 
 ### 3.1. Krzywe uczenia modelu bazowego (Zadanie 1)
-* **Najlepsza epoka:** **36** (minimalny błąd walidacyjny $\text{val MSE} = 0{,}0822$ w skali standaryzowanej).
-* **Przebieg optymalizacji:** Strata treningowa i walidacyjna gwałtownie spadły w trakcie pierwszych 10 epok, po czym ustabilizowały się na asymptotycznym poziomie $\approx 0{,}08$–$0{,}09$, biegnąc równolegle.
+
+* **Numer najlepszej epoki:** **36** (minimalna strata walidacyjna $\text{val MSE} = 0{,}0822$ w skali standaryzowanej).
+* **Wykres krzywych uczenia:**
+
+<img width="726" height="316" alt="krzywe uczenia" src="https://github.com/user-attachments/assets/bef596fe-7d94-4b77-9605-9c96aa02e42a" />
+
+
+* **Przebieg uczenia:** Zarówno strata treningowa, jak i walidacyjna dynamicznie spadają w pierwszych 10 epokach, po czym od około 15. epoki stabilizują się i biegną płasko, równolegle do siebie, bez rozchodzenia się.
+
+---
 
 ### 3.2. Ocena jedno- i wielokrokowa na zbiorze testowym (Zadanie 2)
-Ewaluację wielokrokową przeprowadzono z 10 punktów startowych rozmieszczonych co 14 dni na zbiorze testowym ($t_0 \in \{850, 864, \dots, 976\}$) dla horyzontu $H = 14$. Wyniki podano w oryginalnej skali sprzedaży:
+
+Porównanie przeprowadzono na zbiorze testowym (150 dni) dla horyzontu $H = 1$ oraz rekurencyjnie dla $H = 14$ dni (10 punktów startowych co 14 dni). Wszystkie metryki wyrażono w oryginalnej skali sprzedaży:
 
 | Metoda / Model | MAE ($H=1$) | RMSE ($H=1$) | MAE ($H=14$) | RMSE ($H=14$) |
 | :--- | :---: | :---: | :---: | :---: |
@@ -81,25 +90,30 @@ Ewaluację wielokrokową przeprowadzono z 10 punktów startowych rozmieszczonych
 | **Baseline naiwny ($t-1$)** | 5,44 | 6,51 | 10,09 | 11,85 |
 | **Średnia ruchoma ($OKNO=28$)** | 5,80 | 6,84 | — | — |
 
-* **Dynamika błędu w funkcji horyzontu $h \in [1, 14]$:**
-  * **Naiwny ($t-1$):** Błąd natychmiast gwałtownie wzrasta z poziomu ok. $5{,}4$ do ponad $11{,}8$, ponieważ stała linia nie posiada żadnej informacji o fazie cyklu.
-  * **Sezonowy ($t-7$):** Wykazuje stabilny błąd MAE na poziomie $\approx 3{,}52$ dla każdego kroku $h$, gdyż powtarzanie idealnego cyklu 7-dniowego nie ulega degradacji wraz z odległością horyzontu.
-  * **GRU:** Błąd rośnie monotonicznie od $2{,}91$ dla $h = 1$ do poziomu ponad $4{,}6$ dla $h = 14$ na skutek kumulowania się odchyleń predykcji podawanych na wejście w kolejnych krokach.
+* **Wykres błędu MAE w funkcji horyzontu $h \in [1, 14]$:**
 
-### 3.3. Wpływ długości okna wejściowego (Zadanie 3)
-Eksperyment przeprowadzono dla $OKNO \in \{3, 7, 28\}$ i dwóch ziaren losowości (`seed 0`, `seed 1`):
+<img width="687" height="316" alt="horyzont" src="https://github.com/user-attachments/assets/b7339967-0f25-47a4-9acc-3897b28b1a93" />
 
-| Długość okna | Ziarno (Seed) | Walidacja (`val MSE`) | MAE 1-krok ($H=1$) | MAE 14-krok ($H=14$) |
+
+* **Przebieg błędu w funkcji horyzontu:**
+  * **Naiwny ($t-1$):** Błąd natychmiast rośnie z poziomu $\approx 5{,}4$ do ponad $11{,}8$, ponieważ powtórzona stała wartość całkowicie gubi cykl tygodniowy.
+  * **Sezonowy ($t-7$):** Błąd utrzymuje stałą wartość oscylującą wokół $3{,}5$ dla każdego z kroków $h \in [1, 14]$, gdyż sztywny okres 7-dniowy pokrywa się z dominującą częstotliwością danych.
+  * **GRU:** Błąd rośnie monotonicznie od poziomu $2{,}91$ ($h=1$) do około $4{,}6$ ($h=14$) w wyniku wprowadzania do okna wejściowego własnych, obarczonych błędem predykcji.
+
+---
+
+### 3.3. Wpływ długości okna kontekstowego (Zadanie 3)
+
+| Długość okna ($OKNO$) | Seed | Walidacyjne MSE (`val MSE`) | MAE 1-krok ($H=1$) | MAE 14-krok ($H=14$) |
 | :---: | :---: | :---: | :---: | :---: |
-| **3** | 0 | 0,2567 | 5,00 | 7,18 |
-| **3** | 1 | 0,2486 | 5,04 | 7,41 |
-| **7** | 0 | 0,0855 | 2,90 | 4,21 |
-| **7** | 1 | 0,0896 | 2,88 | 3,89 |
-| **28** | 0 | **0,0822** | **2,91** | **3,88** |
-| **28** | 1 | **0,0850** | **3,01** | **4,29** |
+| **3 dni** | 0 | 0,2567 | 5,00 | 7,18 |
+| **3 dni** | 1 | 0,2486 | 5,04 | 7,41 |
+| **7 dni** | 0 | 0,0855 | 2,90 | 4,21 |
+| **7 dni** | 1 | 0,0896 | 2,88 | 3,89 |
+| **28 dni** | 0 | **0,0822** | **2,91** | **3,88** |
+| **28 dni** | 1 | **0,0850** | **3,01** | **4,29** |
 
-* **Wybór optymalnego okna:** Zgodnie z kryterium minimalizacji błędu na zbiorze walidacyjnym wybrano **$OKNO = 28$** (średnia $\text{val MSE} = 0{,}0836$, wobec $0{,}0876$ dla okna 7 oraz $0{,}2527$ dla okna 3).
-
+* **Wybór według kryterium walidacji:** Najlepszym modelem jest **$OKNO = 28$** (najniższe średnie $\text{val MSE} \approx 0{,}0836$ w skali standaryzowanej).
 ---
 
 ## 4. Analiza i interpretacja
