@@ -2,7 +2,7 @@
 
 **Przedmiot:** Uczenie głębokie w systemach rozpoznawania i przetwarzania mowy  
 **Zajęcia nr / temat:** Laboratorium 3 — Prognozowanie szeregów czasowych: prognoza wielokrokowa i porównanie z baseline'ami  
-**Autor / grupa:** [Imię i Nazwisko / Grupa]  
+**Autor / grupa:** Bartosz Paluda 
 **Data:** 29 października 2026 r.  
 
 ---
