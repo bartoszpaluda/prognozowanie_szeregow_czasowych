@@ -61,7 +61,7 @@ def rollout(model, s, start, H, okno):
             hist.append(y)                   # prognoza trafia z powrotem do bufora wejściowego
     return np.array(wyn)
 ```
-
+**Link do Github'a** - https://github.com/bartoszpaluda/prognozowanie_szeregow_czasowych
 ---
 
 ## 3. Wyniki
